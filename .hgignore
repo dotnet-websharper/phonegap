@@ -1,0 +1,5 @@
+^\.build
+^\.nuget
+^old
+^packages
+\~$
