@@ -26,8 +26,8 @@ module Config =
     let PackageId = "IntelliFactory.WebSharper.PhoneGap"
     let Tags = ["WebSharper"; "TypeScript"; "PhoneGap"; "F#"]
     let AssemblyVersion = Version "0.0.0.0"
-    let AssemblyFileVersion = Version "0.0.1.0"
-    let Version = "0.0.1-alpha"
+    let AssemblyFileVersion = Version "0.0.2.0"
+    let Version = "0.0.2-alpha"
     let Website = "http://bitbucket.org/IntelliFactory/websharper.phonegap"
 
 let BuildFromTypeScript = T "BuildFromTypeScript" <| fun () ->
@@ -69,7 +69,16 @@ let BuildWithWebSharper = T "BuildWithWebSharper" <| fun () ->
     let comp = WFE.Prepare opts (fun x -> stdout.WriteLine(string x))
     let ra = loader.LoadFile Raw
     if comp.CompileAndModify ra then
-        File.Copy(Raw, Out, true)
+        let key =
+            let ih = Environment.GetEnvironmentVariable("INTELLIFACTORY")
+            if ih <> null then
+                let p = ih +/ "keys" +/ "IntelliFactory.snk"
+                if File.Exists(p) then
+                    Reflection.StrongNameKeyPair(File.ReadAllBytes p)
+                    |> Some
+                else None
+            else None
+        ra.Write key Out
         tracefn "Compiled %s" Out
     else
         tracefn "Failed to compile %s" Out
