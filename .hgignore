@@ -1,5 +1,2 @@
-^\.build
-^\.nuget
-^old
-^packages
-\~$
+^packages/
+^tools/packages/
