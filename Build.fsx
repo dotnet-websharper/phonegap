@@ -2,8 +2,8 @@
 open IntelliFactory.Core
 open IntelliFactory.Build
 
-let name = "IntelliFactory.WebSharper.PhoneGap"
-let bt = BuildTool().PackageId(name, "0.1-alpha")
+let name = "WebSharper.PhoneGap"
+let bt = BuildTool().PackageId(name, "0.1")
 
 [<Sealed>]
 type P(?ps: Parameters) =
@@ -16,7 +16,7 @@ type P(?ps: Parameters) =
                 "tools/net45/IntelliFactory.WebSharper.Compiler.dll"
             ]
         [
-            bt.Reference.NuGet("IntelliFactory.TypeScript")
+            bt.Reference.NuGet("WebSharper.TypeScript")
                 .At(["lib/net45/IntelliFactory.TypeScript.dll"])
                 .Reference()
             bt.Reference.NuGet("WebSharper")
