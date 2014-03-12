@@ -39,6 +39,7 @@
     <None Include="extra.files" />
     <Content Include="Main.html" />
     <None Include="packages.config" />
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -49,10 +50,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="IntelliFactory.WebSharper.PhoneGap">
-      <HintPath>..\..\build\IntelliFactory.WebSharper.PhoneGap.dll</HintPath>
-    </Reference>
-    <Reference Include="IntelliFactory.WebSharper.TypeScript.Lib">
-      <HintPath>..\..\packages\WebSharper.TypeScript.Lib\lib\net40\IntelliFactory.WebSharper.TypeScript.Lib.dll</HintPath>
+      <HintPath>..\packages\WebSharper.PhoneGap.2.5.7\lib\net40\IntelliFactory.WebSharper.PhoneGap.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
