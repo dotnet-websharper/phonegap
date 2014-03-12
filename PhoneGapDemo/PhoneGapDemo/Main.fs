@@ -1,30 +1,36 @@
 namespace PhoneGapDemo
 
-open IntelliFactory.Html
 open IntelliFactory.WebSharper
+open IntelliFactory.WebSharper.Html
+open IntelliFactory.WebSharper.JQuery
+open IntelliFactory.WebSharper.JQuery.Mobile
+open IntelliFactory.WebSharper.PhoneGap
 open IntelliFactory.WebSharper.Sitelets
 
-type Action =
-    | Home
+[<JavaScript>]
+module Main =
 
-module Controls =
-    open IntelliFactory.WebSharper.Html
-    open IntelliFactory.WebSharper.JQuery
-    open IntelliFactory.WebSharper.JQuery.Mobile
+    let startLoop () =
+        let rec loop () : Async<unit> =
+            async {
+                do JavaScript.Log("==> ping")
+                do! Async.Sleep(1000)
+                return! loop()
+            }
+        Async.Start(loop ())
 
-    [<Sealed>]
-    type EntryPoint() =
-        inherit Web.Control()
-
-        [<JavaScript>]
-        override __.Body =
-            let currentPage = ref None
+    let Program =
+        JavaScript.Log("==> starting Program")
+        startLoop ()
+        let currentPage = ref None
+        Events.deviceReady.add <| fun () ->
+            JavaScript.Log("==> deviceReady")
             Mobile.Events.PageBeforeChange.On(JQuery.Of Dom.Document.Current, fun (e, data) ->
                 match data.ToPage with
-                | :? string as pageUrl -> 
+                | :? string as pageUrl ->
                     match Client.getJQMPage pageUrl with
                     | Some pageObj ->
-                        let body = JQuery.Of "body"                  
+                        let body = JQuery.Of "body"
                         let toPage =
                             match body.Children pageUrl with
                             | p when p.Length = 0 ->
@@ -37,48 +43,5 @@ module Controls =
                         pageObj.Load()
                         currentPage := Some pageObj
                     | None _ -> ()
-                | _ -> ()
-            )
-            upcast Div [] |>! OnAfterRender (fun _ -> Client.mobile.ChangePage "#home")
-
-module Skin =
-    open System.Web
-
-    type Page =
-        {
-            Title : string
-            Body : list<Content.HtmlElement>
-        }
-
-    let MainTemplate =
-        Content.Template<Page>("~/Main.html")
-            .With("title", fun x -> x.Title)
-            .With("body", fun x -> x.Body)
-
-    let WithTemplate title body : Content<Action> =
-        Content.WithTemplate MainTemplate <| fun context ->
-            {
-                Title = title
-                Body = body context
-            }
-
-module Site =
-    let HomePage =
-        Skin.WithTemplate "HomePage" <| fun ctx ->
-            [
-                Div [new Controls.EntryPoint()]
-            ]
-
-    let Main =
-        Sitelet.Sum [
-            Sitelet.Content "/" Home HomePage
-        ]
-
-[<Sealed>]
-type Website() =
-    interface IWebsite<Action> with
-        member this.Sitelet = Site.Main
-        member this.Actions = [Home]
-
-[<assembly: Website(typeof<Website>)>]
-do ()
+                | _ -> ())
+            Client.mobile.ChangePage "#home"

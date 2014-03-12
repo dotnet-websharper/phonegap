@@ -16,13 +16,19 @@ let mjs = local [".."; "node_modules"; "typedphonegap"; "build"; "TypedPhoneGap.
 let lib = local [".."; "packages"; "WebSharper.TypeScript.Lib"; "lib"; "net40"; "IntelliFactory.WebSharper.TypeScript.Lib.dll"]
 let snk = local [Environment.GetEnvironmentVariable("INTELLIFACTORY"); "keys"; "IntelliFactory.snk"]
 
+let fsCore =
+    local [
+        Environment.GetEnvironmentVariable("ProgramFiles(x86)"); "Reference Assemblies"
+        "Microsoft"; "FSharp"; ".NETFramework"; "v4.0"; "4.3.0.0"; "FSharp.Core.dll"
+    ]
+
 let opts =
     {
         C.Options.Create("IntelliFactory.WebSharper.PhoneGap", [dts]) with
             AssemblyVersion = Some (Version "2.5.0.0")
             EmbeddedResources = [C.EmbeddedResource.FromFile(mjs)]
             Renaming = IntelliFactory.WebSharper.TypeScript.Renaming.RemovePrefix "TypedPhoneGap"
-            References = [C.ReferenceAssembly.File lib] 
+            References = [C.ReferenceAssembly.File lib; C.ReferenceAssembly.File fsCore]
             StrongNameKeyFile = Some snk
             Verbosity = C.Level.Verbose
             WebSharperResources = [C.WebSharperResource.Create("TypedPhoneGapResource", "TypedPhoneGap.min.js")]

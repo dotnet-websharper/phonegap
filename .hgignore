@@ -7,3 +7,6 @@ bin/Debug/
 bin/html/
 obj/Debug/
 \.suo$
+platforms/android
+Content/
+www/websharper/

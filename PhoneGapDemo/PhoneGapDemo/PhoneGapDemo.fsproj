@@ -5,8 +5,7 @@
     <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>870776e8-c839-4ee0-8e3f-12b2401a5653</ProjectGuid>
-    <WebSharperProject>Html</WebSharperProject>
-    <WebSharperHtmlDirectory>$(MSBuildThisFileDirectory)bin\html</WebSharperHtmlDirectory>
+    <WebSharperProject>Bundle</WebSharperProject>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>
@@ -36,10 +35,7 @@
   <ItemGroup>
     <Compile Include="Client.fs" />
     <Compile Include="Main.fs" />
-    <None Include="extra.files" />
-    <Content Include="Main.html" />
     <None Include="packages.config" />
-    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -50,7 +46,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="IntelliFactory.WebSharper.PhoneGap">
-      <HintPath>..\packages\WebSharper.PhoneGap.2.5.7\lib\net40\IntelliFactory.WebSharper.PhoneGap.dll</HintPath>
+      <HintPath>..\packages\WebSharper.PhoneGap.2.5.8\lib\net40\IntelliFactory.WebSharper.PhoneGap.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
@@ -78,5 +74,15 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\WebSharper.2.5.98.29\build\WebSharper.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WebSharper.2.5.98.29\build\WebSharper.targets'))" />
+  </Target>
+  <Target Name="CopyContent" AfterTargets="Build">
+    <PropertyGroup>
+      <D>..\demo\www\websharper</D>
+    </PropertyGroup>
+    <ItemGroup>
+      <ContentFiles Include="Content\*.*" />
+    </ItemGroup>
+    <MakeDir Directories="$(D)" Condition="!Exists('$(D)')" />
+    <Copy SourceFiles="@(ContentFiles)" DestinationFolder="$(D)" SkipUnchangedFiles="true" />
   </Target>
 </Project>
