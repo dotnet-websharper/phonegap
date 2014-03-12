@@ -4,6 +4,7 @@ open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.JQuery
 open IntelliFactory.WebSharper.JQuery.Mobile
 open IntelliFactory.WebSharper.Html
+open IntelliFactory.WebSharper.PhoneGap
 
 [<JavaScript>]
 module Client =
@@ -65,7 +66,7 @@ module Client =
     let AccelerometerPage =
         lazy
         let xDiv, yDiv, zDiv = Div [], Div [], Div []
-        let accPlugin = TypedPhoneGap.TypedPhoneGap.DeviceMotion.getPlugin()
+        let accPlugin = DeviceMotion.getPlugin()
         let watchHandle = ref null
         {
             Html =
@@ -103,8 +104,7 @@ module Client =
             Html =
                 PageDiv "camera" [
                     HeaderDiv [ H1 [ Text "Camera" ] ]
-                    ContentDiv [
-                    ]
+                    ContentDiv []
                 ]
             Load = ignore
             Unload = ignore
@@ -129,8 +129,7 @@ module Client =
             Html =
                 PageDiv "gps" [
                     HeaderDiv [ H1 [ Text "GPS" ] ]
-                    ContentDiv [
-                    ]
+                    ContentDiv []
                 ]
             Load = ignore
             Unload = ignore
@@ -142,8 +141,7 @@ module Client =
             Html =
                 PageDiv "contacts" [
                     HeaderDiv [ H1 [ Text "Contacts" ] ]
-                    ContentDiv [
-                    ]
+                    ContentDiv []
                 ]
             Load = ignore
             Unload = ignore
