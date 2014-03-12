@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>IntelliFactory.WebSharper.PhoneGap</id>
-    <version>0.1</version>
+    <id>WebSharper.PhoneGap</id>
+    <version>2.5.0-alpha</version>
     <authors>IntelliFactory</authors>
-    <description>WebSharper bindings to PhoneGap</description>
+    <description>WebSharper bindings to PhoneGap / Cordova 3.4.0</description>
     <language>en-US</language>
     <projectUrl>http://bitbucket.org/IntelliFactory/websharper.phonegap</projectUrl>
     <licenseUrl>http://websharper.com/licensing</licenseUrl>
   </metadata>
   <files>
-    <file src="build\IntelliFactory.WebSharper.PhoneGap.dll" target="lib\net45" />
+    <file src="build\IntelliFactory.WebSharper.PhoneGap.dll" target="lib\net40" />
   </files>
 </package>
 
