@@ -1,5 +1,5 @@
 set-alias nuget tools/NuGet/NuGet.exe
-
+set-alias npm "C:\Program Files\nodejs\npm.cmd"
 function nuget-inst-pre($pkg) {
   nuget install -NoCache -PreRelease -ExcludeVersion -o packages $pkg
 }
