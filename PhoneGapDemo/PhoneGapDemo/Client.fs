@@ -5,6 +5,8 @@ open IntelliFactory.WebSharper.JQuery
 open IntelliFactory.WebSharper.JQuery.Mobile
 open IntelliFactory.WebSharper.Html
 
+open IntelliFactory.WebSharper.PhoneGap
+
 [<JavaScript>]
 module Client =
 
@@ -62,31 +64,32 @@ module Client =
             Unload = ignore
         }
 
+    let row text value =
+        TR [ 
+            TD [ Div [ Text text ] ]
+            TD [ value ] 
+        ]
+
     let AccelerometerPage =
         lazy
         let xDiv, yDiv, zDiv = Div [], Div [], Div []
-        let accPlugin = TypedPhoneGap.TypedPhoneGap.DeviceMotion.getPlugin()
+        let plugin = PhoneGap.DeviceMotion.getPlugin()
         let watchHandle = ref null
         {
             Html =
-                let row text value =
-                    TR [ 
-                        TD [ Div [ Text text ] ]
-                        TD [ value ] 
-                    ]
                 PageDiv "accelerometer" [
                     HeaderDiv [ H1 [ Text "Accelerometer" ] ]
                     ContentDiv [
                         Table [
-                            row "X" xDiv
-                            row "Y" yDiv
-                            row "Z" zDiv
+                            row "X: " xDiv
+                            row "Y: " yDiv
+                            row "Z: " zDiv
                         ]
                     ]
                 ]
             Load = fun () ->
                 watchHandle :=
-                    accPlugin.watchAcceleration(
+                    plugin.watchAcceleration(
                         fun acc ->
                             xDiv.Text <- string acc.x
                             yDiv.Text <- string acc.y
@@ -94,7 +97,7 @@ module Client =
                         ,
                         ignore
                     )
-            Unload = fun () -> accPlugin.clearWatch(!watchHandle)
+            Unload = fun () -> plugin.clearWatch(!watchHandle)
         }
 
     let CameraPage =
@@ -112,32 +115,62 @@ module Client =
 
     let CompassPage =
         lazy
+        let headingDiv = Div []
+        let plugin = PhoneGap.DeviceOrientation.getPlugin()
+        let watchHandle = ref null
         {
             Html =
                 PageDiv "compass" [
                     HeaderDiv [ H1 [ Text "Compass" ] ]
                     ContentDiv [
+                        Div [ Text "Heading:" ]
+                        headingDiv   
                     ]
                 ]
-            Load = ignore
-            Unload = ignore
+            Load = fun () ->
+                watchHandle :=
+                    plugin.watchHeading(
+                        fun ori ->
+                            headingDiv.Text <- string ori.magneticHeading
+                        , 
+                        ignore
+                    )
+            Unload = fun () -> plugin.clearWatch(!watchHandle)
         }
 
     let GPSPage =
         lazy
+        let latDiv, lngDiv, altDiv = Div[], Div[], Div[] 
+        let plugin = PhoneGap.Geolocation.getPlugin()
+        let watchHandle = ref null
         {
             Html =
                 PageDiv "gps" [
                     HeaderDiv [ H1 [ Text "GPS" ] ]
                     ContentDiv [
+                        Table [
+                            row "Latitude: " latDiv
+                            row "Longitude: " lngDiv
+                            row "Altitude: " altDiv
+                        ]
                     ]
                 ]
-            Load = ignore
-            Unload = ignore
+            Load = fun () ->
+                watchHandle :=
+                    plugin.watchPosition(
+                        fun pos ->
+                            latDiv.Text <- string pos.coords.latitude
+                            lngDiv.Text <- string pos.coords.longitude
+                            altDiv.Text <- string pos.coords.altitude
+                        , 
+                        ignore
+                    )
+            Unload = fun () -> plugin.clearWatch(!watchHandle)
         }
 
     let ContactsPage =
         lazy
+        let plugin = PhoneGap.Contacts.getPlugin()
         {
             Html =
                 PageDiv "contacts" [

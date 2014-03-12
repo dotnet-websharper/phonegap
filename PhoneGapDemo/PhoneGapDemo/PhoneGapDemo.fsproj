@@ -48,14 +48,17 @@
       <HintPath>..\packages\WebSharper.JQueryMobile.2.5.2.196\lib\net40\IntelliFactory.WebSharper.JQuery.Mobile.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="IntelliFactory.WebSharper.PhoneGap">
+      <HintPath>..\..\build\IntelliFactory.WebSharper.PhoneGap.dll</HintPath>
+    </Reference>
+    <Reference Include="IntelliFactory.WebSharper.TypeScript.Lib">
+      <HintPath>..\..\packages\WebSharper.TypeScript.Lib\lib\net40\IntelliFactory.WebSharper.TypeScript.Lib.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
-    <Reference Include="TypedPhoneGap">
-      <HintPath>..\bin\TypedPhoneGap.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '11.0'">
