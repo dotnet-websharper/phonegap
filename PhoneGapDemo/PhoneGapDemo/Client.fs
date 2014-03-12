@@ -4,7 +4,6 @@ open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.JQuery
 open IntelliFactory.WebSharper.JQuery.Mobile
 open IntelliFactory.WebSharper.Html
-
 open IntelliFactory.WebSharper.PhoneGap
 
 [<JavaScript>]
@@ -106,8 +105,7 @@ module Client =
             Html =
                 PageDiv "camera" [
                     HeaderDiv [ H1 [ Text "Camera" ] ]
-                    ContentDiv [
-                    ]
+                    ContentDiv []
                 ]
             Load = ignore
             Unload = ignore
@@ -116,7 +114,7 @@ module Client =
     let CompassPage =
         lazy
         let headingDiv = Div []
-        let plugin = PhoneGap.DeviceOrientation.getPlugin()
+        let plugin = DeviceOrientation.getPlugin()
         let watchHandle = ref null
         {
             Html =
@@ -141,7 +139,7 @@ module Client =
     let GPSPage =
         lazy
         let latDiv, lngDiv, altDiv = Div[], Div[], Div[] 
-        let plugin = PhoneGap.Geolocation.getPlugin()
+        let plugin = Geolocation.getPlugin()
         let watchHandle = ref null
         {
             Html =
@@ -170,13 +168,12 @@ module Client =
 
     let ContactsPage =
         lazy
-        let plugin = PhoneGap.Contacts.getPlugin()
+        let plugin = Contacts.getPlugin()
         {
             Html =
                 PageDiv "contacts" [
                     HeaderDiv [ H1 [ Text "Contacts" ] ]
-                    ContentDiv [
-                    ]
+                    ContentDiv []
                 ]
             Load = ignore
             Unload = ignore
