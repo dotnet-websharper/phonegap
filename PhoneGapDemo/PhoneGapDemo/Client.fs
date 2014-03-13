@@ -29,7 +29,7 @@ module Client =
         UL [
             HTML5.Attr.Data "role" "listview"
             HTML5.Attr.Data "inset" "true"
-        ] -< cont   
+        ] -< cont
 
     type JQMPage =
         {
@@ -52,8 +52,8 @@ module Client =
                         H2 [ Text "Examples:" ]
                         ListViewUL [
                             link "Accelerometer" "#accelerometer"
-                            link "Camera"        "#camera"   
-                            link "Compass"       "#compass" 
+                            link "Camera"        "#camera"
+                            link "Compass"       "#compass"
                             link "GPS"           "#gps"
                             link "Contacts"      "#contacts"
                         ]
@@ -72,32 +72,43 @@ module Client =
     let AccelerometerPage =
         lazy
         let xDiv, yDiv, zDiv = Div [], Div [], Div []
-        let plugin = PhoneGap.DeviceMotion.getPlugin()
-        let watchHandle = ref null
-        {
-            Html =
-                PageDiv "accelerometer" [
-                    HeaderDiv [ H1 [ Text "Accelerometer" ] ]
-                    ContentDiv [
-                        Table [
-                            row "X: " xDiv
-                            row "Y: " yDiv
-                            row "Z: " zDiv
+        try
+            let plugin = PhoneGap.DeviceMotion.getPlugin()
+            let watchHandle = ref null
+            {
+                Html =
+                    PageDiv "accelerometer" [
+                        HeaderDiv [ H1 [ Text "Accelerometer" ] ]
+                        ContentDiv [
+                            Table [
+                                row "X: " xDiv
+                                row "Y: " yDiv
+                                row "Z: " zDiv
+                            ]
                         ]
                     ]
-                ]
-            Load = fun () ->
-                watchHandle :=
-                    plugin.watchAcceleration(
-                        fun acc ->
-                            xDiv.Text <- string acc.x
-                            yDiv.Text <- string acc.y
-                            zDiv.Text <- string acc.z
-                        ,
-                        ignore
-                    )
-            Unload = fun () -> plugin.clearWatch(!watchHandle)
-        }
+                Load = fun () ->
+                    watchHandle :=
+                        plugin.watchAcceleration(
+                            fun acc ->
+                                xDiv.Text <- string acc.x
+                                yDiv.Text <- string acc.y
+                                zDiv.Text <- string acc.z
+                            ,
+                            ignore
+                        )
+                Unload = fun () -> plugin.clearWatch(!watchHandle)
+            }
+        with e ->
+            {
+                Html =
+                    PageDiv "accelerometer" [
+                        HeaderDiv [ H1 [ Text "Accelerometer" ] ]
+                        ContentDiv [ Text "Accelerometer not enabled" ]
+                    ]
+                Load = ignore
+                Unload = ignore
+            }
 
     let CameraPage =
         lazy
@@ -114,70 +125,108 @@ module Client =
     let CompassPage =
         lazy
         let headingDiv = Div []
-        let plugin = DeviceOrientation.getPlugin()
-        let watchHandle = ref null
-        {
-            Html =
-                PageDiv "compass" [
-                    HeaderDiv [ H1 [ Text "Compass" ] ]
-                    ContentDiv [
-                        Div [ Text "Heading:" ]
-                        headingDiv   
+        try
+            let plugin = DeviceOrientation.getPlugin()
+            let watchHandle = ref null
+            {
+                Html =
+                    PageDiv "compass" [
+                        HeaderDiv [ H1 [ Text "Compass" ] ]
+                        ContentDiv [
+                            Div [ Text "Heading:" ]
+                            headingDiv
+                        ]
                     ]
-                ]
-            Load = fun () ->
-                watchHandle :=
-                    plugin.watchHeading(
-                        fun ori ->
-                            headingDiv.Text <- string ori.magneticHeading
-                        , 
-                        ignore
-                    )
-            Unload = fun () -> plugin.clearWatch(!watchHandle)
-        }
+                Load = fun () ->
+                    watchHandle :=
+                        plugin.watchHeading(
+                            fun ori ->
+                                headingDiv.Text <- string ori.magneticHeading
+                            ,
+                            ignore
+                        )
+                Unload = fun () -> plugin.clearWatch(!watchHandle)
+            }
+        with _ ->
+            {
+                Html =
+                    PageDiv "compass" [
+                        HeaderDiv [ H1 [ Text "Compass" ] ]
+                        ContentDiv [
+                            Div [ Text "Compass Not Enabled" ]
+                        ]
+                    ]
+                Load = ignore
+                Unload = ignore
+            }
+            
 
     let GPSPage =
         lazy
         let latDiv, lngDiv, altDiv = Div[], Div[], Div[] 
-        let plugin = Geolocation.getPlugin()
-        let watchHandle = ref null
-        {
-            Html =
-                PageDiv "gps" [
-                    HeaderDiv [ H1 [ Text "GPS" ] ]
-                    ContentDiv [
-                        Table [
-                            row "Latitude: " latDiv
-                            row "Longitude: " lngDiv
-                            row "Altitude: " altDiv
+        try
+            let plugin = Geolocation.getPlugin()
+            let watchHandle = ref null
+            {
+                Html =
+                    PageDiv "gps" [
+                        HeaderDiv [ H1 [ Text "GPS" ] ]
+                        ContentDiv [
+                            Table [
+                                row "Latitude: " latDiv
+                                row "Longitude: " lngDiv
+                                row "Altitude: " altDiv
+                            ]
                         ]
                     ]
-                ]
-            Load = fun () ->
-                watchHandle :=
-                    plugin.watchPosition(
-                        fun pos ->
-                            latDiv.Text <- string pos.coords.latitude
-                            lngDiv.Text <- string pos.coords.longitude
-                            altDiv.Text <- string pos.coords.altitude
-                        , 
-                        ignore
-                    )
-            Unload = fun () -> plugin.clearWatch(!watchHandle)
-        }
+                Load = fun () ->
+                    watchHandle :=
+                        plugin.watchPosition(
+                            fun pos ->
+                                latDiv.Text <- string pos.coords.latitude
+                                lngDiv.Text <- string pos.coords.longitude
+                                altDiv.Text <- string pos.coords.altitude
+                            , 
+                            ignore
+                        )
+                Unload = fun () -> plugin.clearWatch(!watchHandle)
+            }
+        with e ->
+            {
+                Html =
+                    PageDiv "gps" [
+                        HeaderDiv [ H1 [ Text "GPS" ] ]
+                        ContentDiv [
+                            Text "Geolocation plugin not enabled"
+                        ]
+                    ]
+                Load = ignore
+                Unload = ignore
+            }
 
     let ContactsPage =
         lazy
-        let plugin = Contacts.getPlugin()
-        {
-            Html =
-                PageDiv "contacts" [
-                    HeaderDiv [ H1 [ Text "Contacts" ] ]
-                    ContentDiv []
-                ]
-            Load = ignore
-            Unload = ignore
-        }
+        try
+            let plugin = Contacts.getPlugin()
+            {
+                Html =
+                    PageDiv "contacts" [
+                        HeaderDiv [ H1 [ Text "Contacts" ] ]
+                        ContentDiv []
+                    ]
+                Load = ignore
+                Unload = ignore
+            }
+        with e ->
+            {
+                Html =
+                    PageDiv "contacts" [
+                        HeaderDiv [ H1 [ Text "Contacts" ] ]
+                        ContentDiv [ Text "Contacts plugin not enabled" ]
+                    ]
+                Load = ignore
+                Unload = ignore
+            }
 
     let getJQMPage pageRef =
         match pageRef with
