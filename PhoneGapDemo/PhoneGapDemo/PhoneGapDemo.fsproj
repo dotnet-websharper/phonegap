@@ -46,7 +46,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="IntelliFactory.WebSharper.PhoneGap">
-      <HintPath>..\packages\WebSharper.PhoneGap.2.5.8\lib\net40\IntelliFactory.WebSharper.PhoneGap.dll</HintPath>
+      <HintPath>..\packages\WebSharper.PhoneGap.2.5.11\lib\net40\IntelliFactory.WebSharper.PhoneGap.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
