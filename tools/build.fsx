@@ -26,7 +26,7 @@ let opts =
     {
         C.Options.Create("IntelliFactory.WebSharper.PhoneGap", [dts]) with
             AssemblyVersion = Some (Version "2.5.0.0")
-            EmbeddedResources = [C.EmbeddedResource.FromFile(mjs)]
+            EmbeddedResources = [C.EmbeddedResource.FromFile(mjs).AsWebResource("text/javascript")]
             Renaming = IntelliFactory.WebSharper.TypeScript.Renaming.RemovePrefix "TypedPhoneGap"
             References = [C.ReferenceAssembly.File lib; C.ReferenceAssembly.File fsCore]
             StrongNameKeyFile = Some snk
