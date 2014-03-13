@@ -10,18 +10,8 @@ open IntelliFactory.WebSharper.Sitelets
 [<JavaScript>]
 module Main =
 
-    let startLoop () =
-        let rec loop () : Async<unit> =
-            async {
-                do JavaScript.Log("==> ping")
-                do! Async.Sleep(1000)
-                return! loop()
-            }
-        Async.Start(loop ())
-
     let Program =
         JavaScript.Log("==> starting Program")
-        startLoop ()
         let currentPage = ref None
         Events.deviceReady.add <| fun () ->
             JavaScript.Log("==> deviceReady")
