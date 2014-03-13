@@ -93,21 +93,33 @@ module Client =
                             xDiv.Text <- string acc.x
                             yDiv.Text <- string acc.y
                             zDiv.Text <- string acc.z
-                        ,
-                        ignore
+                    ,   ignore
                     )
-            Unload = fun () -> plugin.clearWatch(!watchHandle)
+            Unload = fun () ->
+                plugin.clearWatch(!watchHandle)
         }
 
     let CameraPage =
         lazy
+        let img = Img []
+        let plugin = Camera.getPlugin()
+        let popoverHandle = ref null
         {
             Html =
                 PageDiv "camera" [
                     HeaderDiv [ H1 [ Text "Camera" ] ]
-                    ContentDiv []
+                    ContentDiv [
+                        Button [ Text "Get picture" ] |>! OnClick (fun _ _ ->
+                            plugin.getPicture(
+                                fun pic ->
+                                    img.SetAttribute("src", "data:image/jpeg;base64," + pic)
+                            ,   ignore
+                            ) |> ignore
+                        )
+                        img
+                    ]
                 ]
-            Load = ignore
+            Load   = ignore
             Unload = ignore
         }
 
@@ -130,10 +142,10 @@ module Client =
                     plugin.watchHeading(
                         fun ori ->
                             headingDiv.Text <- string ori.magneticHeading
-                        , 
-                        ignore
+                    ,   ignore
                     )
-            Unload = fun () -> plugin.clearWatch(!watchHandle)
+            Unload = fun () ->
+                plugin.clearWatch(!watchHandle)
         }
 
     let GPSPage =
@@ -160,22 +172,36 @@ module Client =
                             latDiv.Text <- string pos.coords.latitude
                             lngDiv.Text <- string pos.coords.longitude
                             altDiv.Text <- string pos.coords.altitude
-                        , 
-                        ignore
+                    ,   ignore
                     )
-            Unload = fun () -> plugin.clearWatch(!watchHandle)
+            Unload = fun () ->
+                plugin.clearWatch(!watchHandle)
         }
 
     let ContactsPage =
         lazy
+        let contactsUL = ListViewUL []
         let plugin = Contacts.getPlugin()
         {
             Html =
                 PageDiv "contacts" [
                     HeaderDiv [ H1 [ Text "Contacts" ] ]
-                    ContentDiv []
+                    ContentDiv [
+                        contactsUL
+                    ]
                 ]
-            Load = ignore
+            Load = fun () ->
+                contactsUL.Clear()
+                plugin.find(
+                    [| "displayName" |] 
+                ,   fun cts ->
+                        for c in cts do
+                            LI [ Text (As<Contacts.Properties> c).displayName ]
+                            |> contactsUL.Append
+                        JQuery.Of contactsUL.Body |> Mobile.ListView.Refresh
+                ,   ignore
+                ,   Contacts.FindOptions(multiple = true)
+                )
             Unload = ignore
         }
 
