@@ -192,8 +192,11 @@ module Client =
             |> WithLoad (fun () ->
                 contactsUL.Clear()
                 let onFound (cts: Contacts.Contact []) =
+                    let cts =
+                        cts
+                        |> Array.filter (fun c -> As c.displayName)
                     for c in cts do
-                        LI [ Text (As<Contacts.Properties> c).displayName ]
+                        LI [ Text c.displayName ]
                         |> contactsUL.Append
                     JQuery.Of contactsUL.Body |> Mobile.ListView.Refresh
                 plugin.find([| "displayName" |], onFound, ignore,
