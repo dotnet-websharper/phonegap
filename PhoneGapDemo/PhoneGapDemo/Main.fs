@@ -18,13 +18,13 @@ module Main =
             Mobile.Events.PageBeforeChange.On(JQuery.Of Dom.Document.Current, fun (e, data) ->
                 match data.ToPage with
                 | :? string as pageUrl ->
-                    match Client.getJQMPage pageUrl with
+                    match Client.GetJQMPage pageUrl with
                     | Some pageObj ->
                         let body = JQuery.Of "body"
                         let toPage =
                             match body.Children pageUrl with
                             | p when p.Length = 0 ->
-                                let page = pageObj.Html
+                                let page = Div pageObj.Html
                                 body.Append page.Body |> ignore
                                 (page :> IPagelet).Render()
                                 JQuery.Of page.Body

@@ -18,12 +18,12 @@ module Client =
         Div [ HTML5.Attr.Data "role" "content" ] -< cont
 
     let PageDiv id' cont =
-        Div [
-            HTML5.Attr.Data "role" "page"
-            Id id'
-        ] -< cont |>! OnAfterRender (fun el ->
-            JQuery.Of el.Body |> Mobile.Page.Init
-        ) 
+        Div [ HTML5.Attr.Data "role" "page"; Id id' ] -< cont
+        |>! OnAfterRender (fun el ->
+            JQuery.Of el.Body |> Mobile.Page.Init)
+
+    let PageWithBackBtnDiv id' cont =
+        PageDiv id' [ HTML5.Attr.Data "add-back-btn" "true" ] -< cont
 
     let ListViewUL cont =
         UL [
@@ -31,209 +31,180 @@ module Client =
             HTML5.Attr.Data "inset" "true"
         ] -< cont
 
+    let Row text value =
+        TR [
+            TD [ Div [ Text text ] ]
+            TD [ value ]
+        ]
+
     type JQMPage =
         {
-            Html   : Element
-            Load   : unit -> unit
+            Html : list<Element>
+            Load : unit -> unit
             Unload : unit -> unit
         }
+
+        static member Create(html) =
+            {
+                Html = html
+                Load = ignore
+                Unload = ignore
+            }
+
+    let WithLoad load page =
+        { page with Load = load }
+
+    let WithUnload unload page =
+        { page with Unload = unload }
+
+    let ChangePage (page: string) =
+        mobile.ChangePage(page, ChangePageConfig(Transition = "slide"))
 
     let HomePage =
         let link text (page: string) =
             LI [
                 A [ HRef ""; Text text ]
-                |>! OnClick (fun _ _ -> mobile.ChangePage page)
+                |>! OnClick (fun _ _ -> ChangePage page)
+            ]
+        JQMPage.Create [
+            PageDiv "home" [
+                HeaderDiv [ H1 [ Text "PhoneGap API Demo" ] ]
+                ContentDiv [
+                    H2 [ Text "Examples:" ]
+                    ListViewUL [
+                        link "Accelerometer" "#accelerometer"
+                        link "Camera" "#camera"
+                        link "Compass" "#compass"
+                        link "GPS" "#gps"
+                        link "Contacts" "#contacts"
+                    ]
+                ]
             ] 
-        {
-            Html =
-                PageDiv "home" [
-                    HeaderDiv [ H1 [ Text "PhoneGap API Demo" ] ]
-                    ContentDiv [
-                        H2 [ Text "Examples:" ]
-                        ListViewUL [
-                            link "Accelerometer" "#accelerometer"
-                            link "Camera"        "#camera"
-                            link "Compass"       "#compass"
-                            link "GPS"           "#gps"
-                            link "Contacts"      "#contacts"
+        ]
+
+    let CreatePluginPage id header getPlugin makePage =
+        let plugin = try Some (getPlugin ()) with _ -> None
+        match plugin with
+        | None ->
+            JQMPage.Create [
+                PageWithBackBtnDiv id [
+                    HeaderDiv [ H1 [ Text header ] ]
+                    ContentDiv [ Text "Plugin not available" ]
+                ]
+            ]
+        | Some plugin ->
+            let page = makePage plugin
+            {
+                page with
+                    Html =
+                    [
+                        PageWithBackBtnDiv id [
+                            HeaderDiv [ H1 [ Text header ] ]
+                            ContentDiv page.Html
                         ]
                     ]
-                ] 
-            Load   = ignore
-            Unload = ignore
-        }
-
-    let row text value =
-        TR [ 
-            TD [ Div [ Text text ] ]
-            TD [ value ] 
-        ]
+            }
 
     let AccelerometerPage =
         lazy
-        let xDiv, yDiv, zDiv = Div [], Div [], Div []
-        try
-            let plugin = PhoneGap.DeviceMotion.getPlugin()
+        CreatePluginPage "accelerometer" "Accelerometer" DeviceMotion.getPlugin <| fun plugin ->
+            let xDiv, yDiv, zDiv = Div [], Div [], Div []
             let watchHandle = ref null
-            {
-                Html =
-                    PageDiv "accelerometer" [
-                        HeaderDiv [ H1 [ Text "Accelerometer" ] ]
-                        ContentDiv [
-                            Table [
-                                row "X: " xDiv
-                                row "Y: " yDiv
-                                row "Z: " zDiv
-                            ]
-                        ]
-                    ]
-                Load = fun () ->
-                    watchHandle :=
-                        plugin.watchAcceleration(
-                            fun acc ->
-                                xDiv.Text <- string acc.x
-                                yDiv.Text <- string acc.y
-                                zDiv.Text <- string acc.z
-                            ,
-                            ignore
-                        )
-                Unload = fun () -> plugin.clearWatch(!watchHandle)
-            }
-        with e ->
-            {
-                Html =
-                    PageDiv "accelerometer" [
-                        HeaderDiv [ H1 [ Text "Accelerometer" ] ]
-                        ContentDiv [ Text "Accelerometer not enabled" ]
-                    ]
-                Load = ignore
-                Unload = ignore
-            }
+            JQMPage.Create [
+                Table [
+                    Row "X: " xDiv
+                    Row "Y: " yDiv
+                    Row "Z: " zDiv
+                ]
+            ]
+            |> WithLoad (fun () ->
+                watchHandle :=
+                    plugin.watchAcceleration((fun acc ->
+                        xDiv.Text <- string acc.x
+                        yDiv.Text <- string acc.y
+                        zDiv.Text <- string acc.z), ignore))
+            |> WithUnload (fun () ->
+                plugin.clearWatch(!watchHandle))
 
     let CameraPage =
         lazy
-        {
-            Html =
-                PageDiv "camera" [
-                    HeaderDiv [ H1 [ Text "Camera" ] ]
-                    ContentDiv []
-                ]
-            Load = ignore
-            Unload = ignore
-        }
+        CreatePluginPage "camera" "Camera" Camera.getPlugin <| fun plugin ->
+            let img = Img []
+            let plugin = Camera.getPlugin()
+            let popoverHandle = ref null
+            JQMPage.Create [
+                Button [ Text "Get picture" ]
+                |>! OnClick (fun _ _ ->
+                    plugin.getPicture((fun pic ->
+                        img.SetAttribute("src", "data:image/jpeg;base64," + pic)),
+                        ignore)
+                    |> ignore)
+                img
+            ]
 
     let CompassPage =
         lazy
-        let headingDiv = Div []
-        try
+        CreatePluginPage "compass" "Compass" DeviceOrientation.getPlugin <| fun plugin ->
+            let headingDiv = Div []
             let plugin = DeviceOrientation.getPlugin()
             let watchHandle = ref null
-            {
-                Html =
-                    PageDiv "compass" [
-                        HeaderDiv [ H1 [ Text "Compass" ] ]
-                        ContentDiv [
-                            Div [ Text "Heading:" ]
-                            headingDiv
-                        ]
-                    ]
-                Load = fun () ->
-                    watchHandle :=
-                        plugin.watchHeading(
-                            fun ori ->
-                                headingDiv.Text <- string ori.magneticHeading
-                            ,
-                            ignore
-                        )
-                Unload = fun () -> plugin.clearWatch(!watchHandle)
-            }
-        with _ ->
-            {
-                Html =
-                    PageDiv "compass" [
-                        HeaderDiv [ H1 [ Text "Compass" ] ]
-                        ContentDiv [
-                            Div [ Text "Compass Not Enabled" ]
-                        ]
-                    ]
-                Load = ignore
-                Unload = ignore
-            }
-            
+            JQMPage.Create [
+                Div [ Text "Heading:" ]
+                headingDiv
+            ]
+            |> WithLoad (fun () ->
+                watchHandle :=
+                    plugin.watchHeading((fun ori ->
+                        headingDiv.Text <- string ori.magneticHeading),
+                        ignore))
+            |> WithUnload (fun () ->
+                plugin.clearWatch(!watchHandle))
 
     let GPSPage =
         lazy
-        let latDiv, lngDiv, altDiv = Div[], Div[], Div[] 
-        try
+        CreatePluginPage "gps" "GPS" Geolocation.getPlugin <| fun plugin ->
+            let latDiv, lngDiv, altDiv = Div[], Div[], Div[] 
             let plugin = Geolocation.getPlugin()
             let watchHandle = ref null
-            {
-                Html =
-                    PageDiv "gps" [
-                        HeaderDiv [ H1 [ Text "GPS" ] ]
-                        ContentDiv [
-                            Table [
-                                row "Latitude: " latDiv
-                                row "Longitude: " lngDiv
-                                row "Altitude: " altDiv
-                            ]
-                        ]
-                    ]
-                Load = fun () ->
-                    watchHandle :=
-                        plugin.watchPosition(
-                            fun pos ->
-                                latDiv.Text <- string pos.coords.latitude
-                                lngDiv.Text <- string pos.coords.longitude
-                                altDiv.Text <- string pos.coords.altitude
-                            , 
-                            ignore
-                        )
-                Unload = fun () -> plugin.clearWatch(!watchHandle)
-            }
-        with e ->
-            {
-                Html =
-                    PageDiv "gps" [
-                        HeaderDiv [ H1 [ Text "GPS" ] ]
-                        ContentDiv [
-                            Text "Geolocation plugin not enabled"
-                        ]
-                    ]
-                Load = ignore
-                Unload = ignore
-            }
+            JQMPage.Create [
+                Table [
+                    Row "Latitude: " latDiv
+                    Row "Longitude: " lngDiv
+                    Row "Altitude: " altDiv
+                ]
+            ]
+            |> WithLoad (fun () ->
+                watchHandle :=
+                    plugin.watchPosition((fun pos ->
+                        latDiv.Text <- string pos.coords.latitude
+                        lngDiv.Text <- string pos.coords.longitude
+                        altDiv.Text <- string pos.coords.altitude),
+                        ignore))
+            |> WithUnload (fun () ->
+                plugin.clearWatch(!watchHandle))
 
     let ContactsPage =
         lazy
-        try
+        CreatePluginPage "contacts" "Contacts" Contacts.getPlugin <| fun plugin ->
+            let contactsUL = ListViewUL []
             let plugin = Contacts.getPlugin()
-            {
-                Html =
-                    PageDiv "contacts" [
-                        HeaderDiv [ H1 [ Text "Contacts" ] ]
-                        ContentDiv []
-                    ]
-                Load = ignore
-                Unload = ignore
-            }
-        with e ->
-            {
-                Html =
-                    PageDiv "contacts" [
-                        HeaderDiv [ H1 [ Text "Contacts" ] ]
-                        ContentDiv [ Text "Contacts plugin not enabled" ]
-                    ]
-                Load = ignore
-                Unload = ignore
-            }
+            JQMPage.Create [ contactsUL ]
+            |> WithLoad (fun () ->
+                contactsUL.Clear()
+                let onFound (cts: Contacts.Contact []) =
+                    for c in cts do
+                        LI [ Text (As<Contacts.Properties> c).displayName ]
+                        |> contactsUL.Append
+                    JQuery.Of contactsUL.Body |> Mobile.ListView.Refresh
+                plugin.find([| "displayName" |], onFound, ignore,
+                    Contacts.FindOptions(multiple = true)))
 
-    let getJQMPage pageRef =
+    let GetJQMPage pageRef =
         match pageRef with
-        | "#home"          -> Some HomePage
+        | "#home" -> Some HomePage
         | "#accelerometer" -> Some AccelerometerPage.Value
-        | "#camera"        -> Some CameraPage.Value
-        | "#compass"       -> Some CompassPage.Value
-        | "#gps"           -> Some GPSPage.Value
-        | "#contacts"      -> Some ContactsPage.Value
+        | "#camera" -> Some CameraPage.Value
+        | "#compass" -> Some CompassPage.Value
+        | "#gps" -> Some GPSPage.Value
+        | "#contacts" -> Some ContactsPage.Value
         | _ -> None
