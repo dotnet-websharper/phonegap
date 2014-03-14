@@ -24,7 +24,7 @@ module Main =
                         let toPage =
                             match body.Children pageUrl with
                             | p when p.Length = 0 ->
-                                let page = Div pageObj.Html
+                                let page = pageObj.Html
                                 body.Append page.Body |> ignore
                                 (page :> IPagelet).Render()
                                 JQuery.Of page.Body

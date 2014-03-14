@@ -39,7 +39,7 @@ module Client =
 
     type JQMPage =
         {
-            Html : list<Element>
+            Html : Element
             Load : unit -> unit
             Unload : unit -> unit
         }
@@ -66,7 +66,7 @@ module Client =
                 A [ HRef ""; Text text ]
                 |>! OnClick (fun _ _ -> ChangePage page)
             ]
-        JQMPage.Create [
+        JQMPage.Create <|
             PageDiv "home" [
                 HeaderDiv [ H1 [ Text "PhoneGap API Demo" ] ]
                 ContentDiv [
@@ -79,30 +79,26 @@ module Client =
                         link "Contacts" "#contacts"
                     ]
                 ]
-            ] 
-        ]
+            ]
 
     let CreatePluginPage id header getPlugin makePage =
         let plugin = try Some (getPlugin ()) with _ -> None
         match plugin with
         | None ->
-            JQMPage.Create [
+            JQMPage.Create <|
                 PageWithBackBtnDiv id [
                     HeaderDiv [ H1 [ Text header ] ]
                     ContentDiv [ Text "Plugin not available" ]
                 ]
-            ]
         | Some plugin ->
             let page = makePage plugin
             {
                 page with
                     Html =
-                    [
                         PageWithBackBtnDiv id [
                             HeaderDiv [ H1 [ Text header ] ]
-                            ContentDiv page.Html
+                            page.Html
                         ]
-                    ]
             }
 
     let AccelerometerPage =
@@ -110,7 +106,7 @@ module Client =
         CreatePluginPage "accelerometer" "Accelerometer" DeviceMotion.getPlugin <| fun plugin ->
             let xDiv, yDiv, zDiv = Div [], Div [], Div []
             let watchHandle = ref null
-            JQMPage.Create [
+            JQMPage.Create <| ContentDiv [
                 Table [
                     Row "X: " xDiv
                     Row "Y: " yDiv
@@ -129,15 +125,19 @@ module Client =
     let CameraPage =
         lazy
         CreatePluginPage "camera" "Camera" Camera.getPlugin <| fun plugin ->
-            let img = Img []
+            let img = Img [ Attr.Style "width: 200px" ]
             let plugin = Camera.getPlugin()
             let popoverHandle = ref null
-            JQMPage.Create [
+            JQMPage.Create <| ContentDiv [
                 Button [ Text "Get picture" ]
                 |>! OnClick (fun _ _ ->
-                    plugin.getPicture((fun pic ->
-                        img.SetAttribute("src", "data:image/jpeg;base64," + pic)),
-                        ignore)
+                    let opts = Camera.Options()
+                    opts.encodingType <- Camera.EncodingType1.JPEG
+                    opts.destinationType <- Camera.DestinationType1.FILE_URI
+                    plugin.getPicture((fun fileURI ->
+                        img.SetAttribute("src", fileURI)),
+                        ignore,
+                        opts)
                     |> ignore)
                 img
             ]
@@ -148,7 +148,7 @@ module Client =
             let headingDiv = Div []
             let plugin = DeviceOrientation.getPlugin()
             let watchHandle = ref null
-            JQMPage.Create [
+            JQMPage.Create <| ContentDiv [
                 Div [ Text "Heading:" ]
                 headingDiv
             ]
@@ -166,7 +166,7 @@ module Client =
             let latDiv, lngDiv, altDiv = Div[], Div[], Div[] 
             let plugin = Geolocation.getPlugin()
             let watchHandle = ref null
-            JQMPage.Create [
+            JQMPage.Create <| ContentDiv [
                 Table [
                     Row "Latitude: " latDiv
                     Row "Longitude: " lngDiv
@@ -188,7 +188,7 @@ module Client =
         CreatePluginPage "contacts" "Contacts" Contacts.getPlugin <| fun plugin ->
             let contactsUL = ListViewUL []
             let plugin = Contacts.getPlugin()
-            JQMPage.Create [ contactsUL ]
+            JQMPage.Create <| ContentDiv [ contactsUL ]
             |> WithLoad (fun () ->
                 contactsUL.Clear()
                 let onFound (cts: Contacts.Contact []) =
