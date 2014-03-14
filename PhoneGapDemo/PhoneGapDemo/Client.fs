@@ -25,6 +25,9 @@ module Client =
             JQuery.Of el.Body |> Mobile.Page.Init
         ) 
 
+    let PageWithBackBtnDiv id' cont =
+        PageDiv id' [ HTML5.Attr.Data "add-back-btn" "true" ] -< cont
+
     let ListViewUL cont =
         UL [
             HTML5.Attr.Data "role" "listview"
@@ -38,11 +41,14 @@ module Client =
             Unload : unit -> unit
         }
 
+    let changePage (page: string) =
+        mobile.ChangePage(page, ChangePageConfig(Transition = "slide"))
+
     let HomePage =
         let link text (page: string) =
             LI [
                 A [ HRef ""; Text text ]
-                |>! OnClick (fun _ _ -> mobile.ChangePage page)
+                |>! OnClick (fun _ _ -> changePage page)
             ] 
         {
             Html =
@@ -76,7 +82,7 @@ module Client =
         let watchHandle = ref null
         {
             Html =
-                PageDiv "accelerometer" [
+                PageWithBackBtnDiv "accelerometer" [
                     HeaderDiv [ H1 [ Text "Accelerometer" ] ]
                     ContentDiv [
                         Table [
@@ -106,7 +112,7 @@ module Client =
         let popoverHandle = ref null
         {
             Html =
-                PageDiv "camera" [
+                PageWithBackBtnDiv "camera" [
                     HeaderDiv [ H1 [ Text "Camera" ] ]
                     ContentDiv [
                         Button [ Text "Get picture" ] |>! OnClick (fun _ _ ->
@@ -130,7 +136,7 @@ module Client =
         let watchHandle = ref null
         {
             Html =
-                PageDiv "compass" [
+                PageWithBackBtnDiv "compass" [
                     HeaderDiv [ H1 [ Text "Compass" ] ]
                     ContentDiv [
                         Div [ Text "Heading:" ]
@@ -155,7 +161,7 @@ module Client =
         let watchHandle = ref null
         {
             Html =
-                PageDiv "gps" [
+                PageWithBackBtnDiv "gps" [
                     HeaderDiv [ H1 [ Text "GPS" ] ]
                     ContentDiv [
                         Table [
@@ -184,7 +190,7 @@ module Client =
         let plugin = Contacts.getPlugin()
         {
             Html =
-                PageDiv "contacts" [
+                PageWithBackBtnDiv "contacts" [
                     HeaderDiv [ H1 [ Text "Contacts" ] ]
                     ContentDiv [
                         contactsUL
