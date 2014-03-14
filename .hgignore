@@ -3,6 +3,7 @@
 ^tools/packages/
 ^node_modules/
 ^PhoneGapDemo/packages/
+^PhoneGapDemo/demo/plugins/org.*
 bin/Debug/
 bin/html/
 obj/Debug/
