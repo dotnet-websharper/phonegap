@@ -17,7 +17,7 @@
     </dependencies>
   </metadata>
   <files>
+    <file src="README.md" target="docs" />
     <file src="build\IntelliFactory.WebSharper.PhoneGap.dll" target="lib\net40" />
   </files>
 </package>
-
