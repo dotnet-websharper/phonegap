@@ -3,7 +3,7 @@
   <metadata>
     <id>WebSharper.PhoneGap</id>
     <title>WebSharper.PhoneGap 3.4.0</title>
-    <version>2.5.0</version>
+    <version>3.0.0-alpha</version>
     <authors>IntelliFactory</authors>
     <description>WebSharper bindings to PhoneGap / Cordova 3.4.0</description>
     <language>en-US</language>
@@ -12,7 +12,7 @@
     <tags>mobile f# fsharp cross-platform phonegap cordova</tags>
     <dependencies>
       <group>
-        <dependency id="WebSharper.TypeScript.Lib" version="2.5.0" />
+        <dependency id="WebSharper.TypeScript.Lib" version="3.0.0-alpha" />
       </group>
     </dependencies>
   </metadata>
