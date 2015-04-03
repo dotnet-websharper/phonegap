@@ -18,6 +18,6 @@
   </metadata>
   <files>
     <file src="README.md" target="docs" />
-    <file src="build\IntelliFactory.WebSharper.PhoneGap.dll" target="lib\net40" />
+    <file src="build\WebSharper.PhoneGap.dll" target="lib\net40" />
   </files>
 </package>
