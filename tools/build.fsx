@@ -13,7 +13,10 @@ open System.IO
 open IntelliFactory.Build
 module C = WebSharper.TypeScript.Compiler
 
-let bt = BuildTool().PackageId("WebSharper.PhoneGap").VersionFrom("WebSharper")
+let bt =
+    BuildTool().PackageId("WebSharper.PhoneGap").VersionFrom("WebSharper")
+        .WithFramework(fun fw -> fw.Net40)
+        .WithFSharpVersion(FSharpVersion.FSharp30)
 
 let asmVersion =
     let v = PackageVersion.Full.Find(bt)
